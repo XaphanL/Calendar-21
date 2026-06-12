@@ -37,15 +37,23 @@ const Auth = {
 };
 
 const Storage = {
-    getDays() {
-        return JSON.parse(localStorage.getItem("freeDays") || "[]");
+
+    async getDays() {
+        const user = Auth.getName();
+
+        const doc = await db.collection("users").doc(user).get();
+
+        if (!doc.exists) return [];
+
+        return doc.data().days || [];
     },
 
-    saveDays(days) {
-        localStorage.setItem(
-            "freeDays",
-            JSON.stringify(days)
-        );
+    async saveDays(days) {
+        const user = Auth.getName();
+
+        await db.collection("users").doc(user).set({
+            days: days
+        });
     }
 };
 
