@@ -1,3 +1,14 @@
+const firebaseConfig = {
+    apiKey: "AIzaSyA2q5NHoC63zC-WcFcDrE2gNLNsfNF5PaE",
+    authDomain: "calendar-21-fa28b.firebaseapp.com",
+    projectId: "calendar-21-fa28b",
+    storageBucket: "calendar-21-fa28b.firebasestorage.app",
+    messagingSenderId: "624589506758",
+    appId: "1:624589506758:web:e467a5b1a53a0a3ac7efc7"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 const Auth = {
     getName() {
         let name = localStorage.getItem("username");
