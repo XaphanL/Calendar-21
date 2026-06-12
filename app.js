@@ -258,3 +258,13 @@ async () => {
 }
 
 );
+
+
+(async () => {
+    const { data, error } = await db
+        .from("users")
+        .select("*");
+
+    console.log("DATA:", data);
+    console.log("ERROR:", error);
+})();
