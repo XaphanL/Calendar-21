@@ -1,3 +1,7 @@
+// =====================
+// Firebase INIT
+// =====================
+
 const firebaseConfig = {
     apiKey: "AIzaSyA2q5NHoC63zC-WcFcDrE2gNLNsfNF5PaE",
     authDomain: "calendar-21-fa28b.firebaseapp.com",
@@ -9,6 +13,12 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+
+
+// =====================
+// AUTH (пока простой)
+// =====================
+
 const Auth = {
     getName() {
         let name = localStorage.getItem("username");
@@ -36,6 +46,11 @@ const Auth = {
     }
 };
 
+
+// =====================
+// STORAGE (Firebase)
+// =====================
+
 const Storage = {
 
     async getDays() {
@@ -45,7 +60,9 @@ const Storage = {
 
         if (!doc.exists) return [];
 
-        return doc.data().days || [];
+        const data = doc.data();
+
+        return data.days || [];
     },
 
     async saveDays(days) {
@@ -56,6 +73,109 @@ const Storage = {
         });
     }
 };
+
+
+// =====================
+// CALENDAR
+// =====================
+
+const Calendar = {
+
+    currentDate: new Date(),
+
+    monthNames: [
+        "Январь","Февраль","Март","Апрель","Май","Июнь",
+        "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"
+    ],
+
+    async render() {
+        const calendar = document.getElementById("calendar");
+        calendar.innerHTML = "";
+
+        const year = this.currentDate.getFullYear();
+        const month = this.currentDate.getMonth();
+
+        document.getElementById("monthTitle")
+            .textContent = `${this.monthNames[month]} ${year}`;
+
+        const firstDay = new Date(year, month, 1);
+
+        let startDay = firstDay.getDay();
+        startDay = startDay === 0 ? 6 : startDay - 1;
+
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        // загружаем данные пользователя
+        const selected = await Storage.getDays();
+
+        // пустые клетки
+        for (let i = 0; i < startDay; i++) {
+            const empty = document.createElement("div");
+            empty.className = "day empty";
+            calendar.appendChild(empty);
+        }
+
+        // дни месяца
+        for (let day = 1; day <= daysInMonth; day++) {
+
+            const dateKey =
+                `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+            const cell = document.createElement("div");
+            cell.className = "day";
+            cell.textContent = day;
+
+            if (selected.includes(dateKey)) {
+                cell.classList.add("free");
+            }
+
+            cell.addEventListener("click", async () => {
+
+                let days = await Storage.getDays();
+
+                if (days.includes(dateKey)) {
+                    days = days.filter(d => d !== dateKey);
+                } else {
+                    days.push(dateKey);
+                }
+
+                await Storage.saveDays(days);
+
+                this.render();
+            });
+
+            calendar.appendChild(cell);
+        }
+    }
+};
+
+
+// =====================
+// INIT
+// =====================
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+    document.getElementById("username").textContent =
+        "👤 " + Auth.getName();
+
+    document.getElementById("changeNameBtn").onclick =
+        () => Auth.changeName();
+
+    document.getElementById("prevMonth").onclick =
+        async () => {
+            Calendar.currentDate.setMonth(Calendar.currentDate.getMonth() - 1);
+            await Calendar.render();
+        };
+
+    document.getElementById("nextMonth").onclick =
+        async () => {
+            Calendar.currentDate.setMonth(Calendar.currentDate.getMonth() + 1);
+            await Calendar.render();
+        };
+
+    await Calendar.render();
+});};
 
 const Calendar = {
 
@@ -119,8 +239,7 @@ const Calendar = {
             calendar.appendChild(empty);
         }
 
-        const selected =
-            Storage.getDays();
+        const selected = await Storage.getDays();
 
         for (
             let day = 1;
