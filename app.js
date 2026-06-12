@@ -4,7 +4,9 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
+console.log("Supabase:", supabase);
+console.log("URL:", SUPABASE_URL);
+console.log("KEY length:", SUPABASE_KEY.length);
 // =====================
 // AUTH
 // =====================
