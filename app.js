@@ -3,12 +3,12 @@
 // =====================
 
 const firebaseConfig = {
-    apiKey: "AIzaSyA2q5NHoC63zC-WcFcDrE2gNLNsfNF5PaE",
-    authDomain: "calendar-21-fa28b.firebaseapp.com",
-    projectId: "calendar-21-fa28b",
-    storageBucket: "calendar-21-fa28b.firebasestorage.app",
-    messagingSenderId: "624589506758",
-    appId: "1:624589506758:web:e467a5b1a53a0a3ac7efc7"
+    apiKey: "AIzaSyA1USdRxNJ9rPZ0a-ftfQz9lFxcVLCOYSw",
+  authDomain: "calendar-21-e1293.firebaseapp.com",
+  projectId: "calendar-21-e1293",
+  storageBucket: "calendar-21-e1293.firebasestorage.app",
+  messagingSenderId: "306882924281",
+  appId: "1:306882924281:web:c5f5eb119f45eb62209c28"
 };
 
 firebase.initializeApp(firebaseConfig);
