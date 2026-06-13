@@ -1,38 +1,47 @@
-const SUPABASE_URL = "https://dakulezwuyfcgltclgwq.supabase.co";
+const API_URL = "https://little-sun-5fcd.legendarynyashus.workers.dev";
 
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRha3VsZXp3dXlmY2dsdGNsZ3dxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNzEzNDksImV4cCI6MjA5Njg0NzM0OX0.4ZS7KxClTzOgFlxIBuJyknCqNtDJm74o22_qF42gVjM";
-
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-console.log("Supabase:", supabase);
-console.log("URL:", SUPABASE_URL);
-console.log("KEY length:", SUPABASE_KEY.length);
 // =====================
 // AUTH
 // =====================
 
 const Auth = {
+
 getName() {
-let name = localStorage.getItem("username");
+
+    let name = localStorage.getItem("username");
 
     if (!name) {
+
         name = prompt("Введите ваше имя");
 
         if (!name || !name.trim()) {
             name = "Гость";
         }
 
-        localStorage.setItem("username", name);
+        localStorage.setItem(
+            "username",
+            name.trim()
+        );
     }
 
     return name;
 },
 
 changeName() {
-    const name = prompt("Введите новое имя");
 
-    if (name && name.trim()) {
-        localStorage.setItem("username", name.trim());
+    const name =
+        prompt("Введите новое имя");
+
+    if (
+        name &&
+        name.trim()
+    ) {
+
+        localStorage.setItem(
+            "username",
+            name.trim()
+        );
+
         location.reload();
     }
 }
@@ -45,43 +54,85 @@ changeName() {
 
 const Storage = {
 
+async getAll() {
+
+    try {
+
+        const response =
+            await fetch(
+                API_URL + "/get"
+            );
+
+        return await response.json();
+
+    } catch (err) {
+
+        console.error(
+            "Ошибка загрузки:",
+            err
+        );
+
+        return {};
+    }
+},
+
+async saveAll(data) {
+
+    try {
+
+        await fetch(
+            API_URL + "/set",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+                body:
+                    JSON.stringify(data)
+            }
+        );
+
+    } catch (err) {
+
+        console.error(
+            "Ошибка сохранения:",
+            err
+        );
+    }
+},
+
 async getDays() {
 
-    const user = Auth.getName();
+    const data =
+        await this.getAll();
 
-    const { data, error } = await db
-        .from("users")
-        .select("days")
-        .eq("id", user)
-        .maybeSingle();
+    const user =
+        Auth.getName();
 
-    if (error) {
-        console.error(error);
-        return [];
-    }
-
-    if (!data) {
-        return [];
-    }
-
-    return data.days || [];
+    return (
+        data[user]?.days || []
+    );
 },
 
 async saveDays(days) {
 
-    const user = Auth.getName();
+    const data =
+        await this.getAll();
 
-    const { error } = await db
-        .from("users")
-        .upsert({
-            id: user,
-            name: user,
-            days: days
-        });
+    const user =
+        Auth.getName();
 
-    if (error) {
-        console.error(error);
+    if (!data[user]) {
+
+        data[user] = {
+            days: []
+        };
     }
+
+    data[user].days = days;
+
+    await this.saveAll(data);
 }
 
 };
@@ -92,7 +143,8 @@ async saveDays(days) {
 
 const Calendar = {
 
-currentDate: new Date(),
+currentDate:
+    new Date(),
 
 monthNames: [
     "Январь",
@@ -112,28 +164,39 @@ monthNames: [
 async render() {
 
     const calendar =
-        document.getElementById("calendar");
+        document.getElementById(
+            "calendar"
+        );
 
     calendar.innerHTML = "";
 
     const year =
-        this.currentDate.getFullYear();
+        this.currentDate
+            .getFullYear();
 
     const month =
-        this.currentDate.getMonth();
+        this.currentDate
+            .getMonth();
 
-    document.getElementById("monthTitle")
-        .textContent =
+    document.getElementById(
+        "monthTitle"
+    ).textContent =
         `${this.monthNames[month]} ${year}`;
 
     const firstDay =
-        new Date(year, month, 1);
+        new Date(
+            year,
+            month,
+            1
+        );
 
     let startDay =
         firstDay.getDay();
 
     startDay =
-        startDay === 0 ? 6 : startDay - 1;
+        startDay === 0
+            ? 6
+            : startDay - 1;
 
     const daysInMonth =
         new Date(
@@ -145,14 +208,23 @@ async render() {
     const selected =
         await Storage.getDays();
 
-    for (let i = 0; i < startDay; i++) {
+    for (
+        let i = 0;
+        i < startDay;
+        i++
+    ) {
 
         const empty =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
-        empty.className = "day empty";
+        empty.className =
+            "day empty";
 
-        calendar.appendChild(empty);
+        calendar.appendChild(
+            empty
+        );
     }
 
     for (
@@ -162,20 +234,28 @@ async render() {
     ) {
 
         const dateKey =
-            `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
         const cell =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
-        cell.className = "day";
+        cell.className =
+            "day";
 
         if (
-            selected.includes(dateKey)
+            selected.includes(
+                dateKey
+            )
         ) {
-            cell.classList.add("free");
+            cell.classList.add(
+                "free"
+            );
         }
 
-        cell.textContent = day;
+        cell.textContent =
+            day;
 
         cell.addEventListener(
             "click",
@@ -185,26 +265,36 @@ async render() {
                     await Storage.getDays();
 
                 if (
-                    days.includes(dateKey)
+                    days.includes(
+                        dateKey
+                    )
                 ) {
 
                     days =
                         days.filter(
-                            d => d !== dateKey
+                            d =>
+                                d !==
+                                dateKey
                         );
 
                 } else {
 
-                    days.push(dateKey);
+                    days.push(
+                        dateKey
+                    );
                 }
 
-                await Storage.saveDays(days);
+                await Storage.saveDays(
+                    days
+                );
 
                 await this.render();
             }
         );
 
-        calendar.appendChild(cell);
+        calendar.appendChild(
+            cell
+        );
     }
 }
 
@@ -221,12 +311,14 @@ async () => {
     document.getElementById(
         "username"
     ).textContent =
-        "👤 " + Auth.getName();
+        "👤 " +
+        Auth.getName();
 
     document.getElementById(
         "changeNameBtn"
     ).onclick =
-        () => Auth.changeName();
+        () =>
+            Auth.changeName();
 
     document.getElementById(
         "prevMonth"
@@ -258,13 +350,3 @@ async () => {
 }
 
 );
-
-
-(async () => {
-    const { data, error } = await db
-        .from("users")
-        .select("*");
-
-    console.log("DATA:", data);
-    console.log("ERROR:", error);
-})();
